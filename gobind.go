@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 
-	// geth bind
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
@@ -23,26 +23,37 @@ type Response struct {
 }
 
 func main() {
-	address := os.Args[1]
+	addresses := os.Args[1:]
+	for _, address := range addresses {
+		if err := getBinding(address); err != nil {
+			fmt.Printf("Error for address %s, %v\n", address, err)
+		}
+	}
+	fmt.Println("Done")
+}
 
+func getBinding(address string) error {
 	abi, name, err := makeRequest(address)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	abis := []string{abi}
+	pkg := strings.ToLower(name)
 	types := []string{name}
 	bins := []string{string([]byte{})}
 	var sigs []map[string]string
 	libs := make(map[string]string)
 	aliases := make(map[string]string)
-	code, err := bind.Bind(types, abis, bins, sigs, name, 0, libs, aliases)
+
+	code, err := bind.Bind(types, abis, bins, sigs, pkg, 0, libs, aliases)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	if err := ioutil.WriteFile(name+".go", []byte(code), 0600); err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 func makeRequest(address string) (string, string, error) {
