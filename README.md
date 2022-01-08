@@ -1,6 +1,8 @@
 # Address -> Go Bindings
 
- Essentially the same as the geth abigen tool but reduces arduousness of generating bindings of each contract.
+ A modified version of geth's abigen for the lazy.  Given addresses, will fetch ABI from etherscan, then generate the bindings. 
+ 
+ Binding struct and the output file name are set as the contract name, package name is set as the lowercase of the contract name.
  
  Will update further to increase ease of use even further + add flags for configuration and whatnot.
  
