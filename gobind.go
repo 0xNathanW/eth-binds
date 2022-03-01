@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
@@ -23,28 +22,32 @@ type Response struct {
 }
 
 func main() {
-	addresses := os.Args[1:]
-	for _, address := range addresses {
-		if err := getBinding(address); err != nil {
-			fmt.Printf("Error for address %s, %v\n", address, err)
-		}
+
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: gobind [contract address] [package name]")
+		return
+	}
+
+	if err := getBinding(os.Args[1], os.Args[2]); err != nil {
+		fmt.Println(err)
 	}
 	fmt.Println("Done")
 }
 
-func getBinding(address string) error {
+func getBinding(address string, pkg string) error {
 	abi, name, err := makeRequest(address)
 	if err != nil {
 		return err
 	}
 
 	abis := []string{abi}
-	pkg := strings.ToLower(name)
 	types := []string{name}
 	bins := []string{string([]byte{})}
 	var sigs []map[string]string
 	libs := make(map[string]string)
 	aliases := make(map[string]string)
+
+	fmt.Println("Generating bindings for contract ", pkg)
 
 	code, err := bind.Bind(types, abis, bins, sigs, pkg, 0, libs, aliases)
 	if err != nil {
