@@ -7,11 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-<<<<<<< HEAD
 
 	"github.com/joho/godotenv"
-=======
->>>>>>> 81c1dbb9800d58134b2301fd16ed5d43fb0ca41d
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
@@ -37,39 +34,22 @@ func init() {
 func main() {
 
 	if len(os.Args) < 2 {
-<<<<<<< HEAD
 		fmt.Println("Usage: gobind [contract address] [pkg name]")
 		os.Exit(1)
 	}
 	if err := getBinding(os.Args[:]); err != nil {
 		log.Fatal(err)
-=======
-		fmt.Println("Usage: gobind [contract address] [package name]")
-		return
-	}
-
-	if err := getBinding(os.Args[1], os.Args[2]); err != nil {
-		fmt.Println(err)
->>>>>>> 81c1dbb9800d58134b2301fd16ed5d43fb0ca41d
 	}
 }
 
-<<<<<<< HEAD
 func getBinding(args []string) error {
 	abi, name, err := makeRequest(os.Args[0])
-=======
-func getBinding(address string, pkg string) error {
-	abi, name, err := makeRequest(address)
->>>>>>> 81c1dbb9800d58134b2301fd16ed5d43fb0ca41d
 	if err != nil {
 		return err
 	}
 
 	abis := []string{abi}
-<<<<<<< HEAD
 	pkg := os.Args[1]
-=======
->>>>>>> 81c1dbb9800d58134b2301fd16ed5d43fb0ca41d
 	types := []string{name}
 	bins := []string{string([]byte{})}
 	var sigs []map[string]string
