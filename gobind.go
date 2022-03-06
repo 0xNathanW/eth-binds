@@ -4,16 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
-
-	"github.com/joho/godotenv"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 )
 
-var API_KEY string
+const API_KEY = "YOUR_API_KEY"
 
 type Response struct {
 	Status  string `json:"status"`
@@ -24,44 +21,42 @@ type Response struct {
 	}
 }
 
-func init() {
-	if err := godotenv.Load(); err != nil {
-		panic(fmt.Errorf("error loading .env file: %v", err))
-	}
-	API_KEY = os.Getenv("ETHERSCAN_API_KEY")
-}
-
 func main() {
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: gobind [contract address] [pkg name]")
-		os.Exit(1)
+		fmt.Println("Usage: gobind [contract address] [package name]")
+		return
 	}
-	if err := getBinding(os.Args[:]); err != nil {
-		log.Fatal(err)
+
+	if err := getBinding(os.Args[1], os.Args[2]); err != nil {
+		fmt.Println(err)
 	}
+	fmt.Println("Done")
 }
 
-func getBinding(args []string) error {
-	abi, name, err := makeRequest(os.Args[0])
+func getBinding(address string, pkg string) error {
+	abi, name, err := makeRequest(address)
 	if err != nil {
 		return err
 	}
 
 	abis := []string{abi}
-	pkg := os.Args[1]
 	types := []string{name}
 	bins := []string{string([]byte{})}
 	var sigs []map[string]string
 	libs := make(map[string]string)
 	aliases := make(map[string]string)
 
+	fmt.Println("Generating bindings for contract ", pkg)
+
 	code, err := bind.Bind(types, abis, bins, sigs, pkg, 0, libs, aliases)
 	if err != nil {
 		return err
 	}
-	// Write to file.
-	return ioutil.WriteFile(name+".go", []byte(code), 0600)
+	if err := ioutil.WriteFile(name+".go", []byte(code), 0600); err != nil {
+		return err
+	}
+	return nil
 }
 
 func makeRequest(address string) (string, string, error) {
